@@ -28,7 +28,7 @@ enum PortfolioDesign {
 /// colour, motion and section order. The content never moves.
 abstract final class PortfolioConfig {
   /// THE SWITCH. Set this to design1, design2 or design3.
-  static const PortfolioDesign design = PortfolioDesign.design2;
+  static const PortfolioDesign design = PortfolioDesign.design3;
 
   /// Whether the floating design switcher is available.
   ///
