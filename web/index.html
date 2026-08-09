@@ -2,13 +2,16 @@
 <html lang="en">
 <head>
   <!--
-    Replaced at build time by the `--base-href` argument. GitHub Pages serves
-    this site from a repository sub-path, so it MUST be built with:
+    Replaced at build time by the `--base-href` argument. GitHub Pages serves a
+    project site from a repository sub-path, so it MUST be built with the
+    repository name:
 
-      flutter build web --release --base-href /Shadil-Portfolio/
+      flutter build web --release --base-href "/muhammed-shadil-portfolio/"
 
-    Leaving it as "/" makes every asset resolve against the domain root and
-    the page loads blank.
+    Leaving it as "/" makes every asset resolve against the domain root and the
+    page loads blank with no error. The deploy workflow derives this from the
+    repository name automatically, so renaming the repo cannot break it — see
+    .github/workflows/deploy.yml.
   -->
   <base href="$FLUTTER_BASE_HREF">
 
@@ -24,15 +27,15 @@
   <meta name="robots" content="index, follow">
 
   <!-- Canonical URL. Update if the site moves to a custom domain. -->
-  <link rel="canonical" href="https://muhammed-shadil.github.io/Shadil-Portfolio/">
+  <link rel="canonical" href="https://muhammed-shadil.github.io/muhammed-shadil-portfolio/">
 
   <!-- Open Graph (LinkedIn, Facebook, Slack) -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Muhammed Shadil">
   <meta property="og:title" content="Muhammed Shadil | Flutter Developer">
   <meta property="og:description" content="Senior Flutter Developer with 2.5+ years building production mobile and web applications — 10+ apps on the Play Store.">
-  <meta property="og:url" content="https://muhammed-shadil.github.io/Shadil-Portfolio/">
-  <meta property="og:image" content="https://muhammed-shadil.github.io/Shadil-Portfolio/icons/Icon-512.png">
+  <meta property="og:url" content="https://muhammed-shadil.github.io/muhammed-shadil-portfolio/">
+  <meta property="og:image" content="https://muhammed-shadil.github.io/muhammed-shadil-portfolio/icons/Icon-512.png">
   <meta property="og:image:width" content="512">
   <meta property="og:image:height" content="512">
   <meta property="og:image:alt" content="Muhammed Shadil — Flutter Developer">
@@ -42,7 +45,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Muhammed Shadil | Flutter Developer">
   <meta name="twitter:description" content="Senior Flutter Developer building production mobile and web applications with Flutter, Firebase and REST APIs.">
-  <meta name="twitter:image" content="https://muhammed-shadil.github.io/Shadil-Portfolio/icons/Icon-512.png">
+  <meta name="twitter:image" content="https://muhammed-shadil.github.io/muhammed-shadil-portfolio/icons/Icon-512.png">
 
   <!-- iOS -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -65,7 +68,7 @@
     "name": "Muhammed Shadil",
     "jobTitle": "Senior Flutter Developer",
     "description": "Senior Flutter Developer with 2.5+ years of experience building scalable, high-performance mobile and web applications.",
-    "url": "https://muhammed-shadil.github.io/Shadil-Portfolio/",
+    "url": "https://muhammed-shadil.github.io/muhammed-shadil-portfolio/",
     "email": "mailto:muhammedshadil220@gmail.com",
     "address": {
       "@type": "PostalAddress",

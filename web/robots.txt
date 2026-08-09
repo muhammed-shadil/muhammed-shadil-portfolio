@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://muhammed-shadil.github.io/Shadil-Portfolio/sitemap.xml
+Sitemap: https://muhammed-shadil.github.io/muhammed-shadil-portfolio/sitemap.xml

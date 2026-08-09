@@ -1,0 +1,49 @@
+# Line-ending and binary policy.
+#
+# This project is developed on Windows and built in CI on Linux, so line
+# endings have to be pinned deliberately rather than left to each machine's
+# core.autocrlf setting.
+
+# Normalise everything to LF in the repository; check out per the rules below.
+* text=auto
+
+# Shell scripts MUST keep LF in the working copy. With CRLF, bash fails with
+# "bad interpreter: /usr/bin/env bash^M" and the script never runs — on the
+# developer's machine via Git Bash and inside GitHub Actions alike.
+*.sh text eol=lf
+
+# Workflow files contain `run: |` bash blocks executed on Linux runners; CRLF
+# leaks a stray \r into every command.
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# PowerShell and batch stay CRLF, which is what Windows tooling expects.
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Dart, web and docs: LF everywhere keeps `dart format` and the CI formatting
+# gate in agreement across platforms.
+*.dart text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+
+# Binary assets must never be line-ending converted. A "fixed" TTF is a
+# corrupt TTF, and the fonts here are bundled rather than fetched at runtime.
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.keystore binary
+*.jks binary

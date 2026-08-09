@@ -1118,18 +1118,20 @@ abstract final class PortfolioData {
       url: 'https://github.com/muhammed-shadil/doctor-booking-app',
     ),
     RepoCard(
+      name: 'muhammed-shadil-portfolio',
+      description:
+          'Source of this site — Flutter Web, one dependency, deployed by '
+          'GitHub Actions.',
+      language: 'Dart',
+      languageColor: Color(0xFF00B4AB),
+      url: 'https://github.com/muhammed-shadil/muhammed-shadil-portfolio',
+    ),
+    RepoCard(
       name: 'flutter-portfolio',
-      description: 'Source of this portfolio — Flutter Web, zero UI packages.',
+      description: 'The earlier version of this portfolio, also in Flutter.',
       language: 'Dart',
       languageColor: Color(0xFF00B4AB),
       url: 'https://github.com/muhammed-shadil/flutter-portfolio',
-    ),
-    RepoCard(
-      name: 'Shadil-Portfolio',
-      description: 'Built web output, served by GitHub Pages.',
-      language: 'HTML',
-      languageColor: Color(0xFFE34C26),
-      url: 'https://github.com/muhammed-shadil/Shadil-Portfolio',
     ),
   ];
 

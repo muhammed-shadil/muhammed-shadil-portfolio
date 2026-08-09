@@ -1,47 +1,72 @@
-name: Build and deploy to GitHub Pages
+name: Deploy portfolio
 
-# Publishes the built web app to the `gh-pages` branch of THIS repository.
+# Builds the Flutter web app and publishes it to GitHub Pages.
 #
-# One-time setup:
-#   Settings → Pages → Source: "Deploy from a branch" → gh-pages / (root)
+# ONE-TIME SETUP (in this repository, on github.com):
+#   Settings → Pages → Build and deployment → Source: "GitHub Actions"
 #
-# If you keep the existing two-repo split (source here, build output in the
-# separate Shadil-Portfolio repo), see the "Deploying to a separate repo"
-# section of the README instead — this workflow deploys in place.
+# After that, every push to main redeploys the site automatically. Nothing is
+# committed to the repository by this workflow — the built site is uploaded as
+# a Pages artifact, so `build/web` (~38 MB, mostly CanvasKit) never enters git
+# history.
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
+  # Lets you redeploy from the Actions tab without pushing a commit.
   workflow_dispatch:
 
-# Only one deploy at a time; a newer push supersedes an in-flight run.
-concurrency:
-  group: pages-deploy
-  cancel-in-progress: true
-
+# Required by the official Pages deployment actions:
+#   contents:read   checkout
+#   pages:write     publish the artifact
+#   id-token:write  OIDC token deploy-pages exchanges for the upload URL
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
-env:
-  # MUST match the repository name, with leading and trailing slashes.
-  # Set to "/" if you deploy to a user site or a custom domain at the root.
-  BASE_HREF: /Shadil-Portfolio/
+# One deployment at a time. Runs queued behind the in-flight one are superseded
+# by the newest, but the in-flight one is deliberately NOT cancelled: killing a
+# deployment part-way through publishing can leave the live site serving a
+# half-updated set of files. This matches GitHub's own Pages guidance.
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
+    name: Verify and build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      # PINNED, not `channel: stable`.
+      #
+      # `stable` installs whatever is newest, which ships new analyzer lints
+      # over time. Combined with `--fatal-infos` below, that turns an untouched
+      # repository red weeks after the last commit — exactly what happened on
+      # the first run of this workflow, where Analyze failed in CI while
+      # passing locally.
+      #
+      # To upgrade: run the gates locally on the new SDK first
+      #   flutter upgrade && flutter analyze --fatal-infos && flutter test
+      # then bump the version here to match `flutter --version`.
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.41.6'
           channel: stable
           cache: true
+
+      - name: Flutter version
+        run: flutter --version
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Verify formatting
+      # Quality gates. A red build never reaches the live site.
+      - name: Check formatting
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze
@@ -50,20 +75,54 @@ jobs:
       - name: Test
         run: flutter test
 
+      # The base href MUST match the path GitHub Pages serves from, which for a
+      # project site is "/<repo-name>/". Deriving it rather than hard-coding it
+      # means renaming the repository cannot silently produce a blank page.
+      #
+      # GITHUB_REPOSITORY ("owner/repo") is set for every event type, unlike
+      # github.event.repository.name which depends on the payload.
       - name: Build web
-        run: flutter build web --release --base-href "$BASE_HREF"
-
-      - name: Add GitHub Pages helper files
         run: |
-          # Stops Jekyll from stripping files and folders that begin with "_".
-          touch build/web/.nojekyll
+          BASE_HREF="/${GITHUB_REPOSITORY#*/}/"
+          echo "BASE_HREF=$BASE_HREF" >> "$GITHUB_ENV"
+          echo "Building with base href: $BASE_HREF"
+          flutter build web --release --base-href "$BASE_HREF"
 
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v4
+      # A wrong base href produces a page that is blank with an empty console,
+      # so it is worth failing the build loudly instead of publishing it.
+      - name: Verify base href was applied
+        run: |
+          EXPECTED="<base href=\"${BASE_HREF}\">"
+          if ! grep -qF -- "$EXPECTED" build/web/index.html; then
+            echo "::error::Expected ${EXPECTED} in build/web/index.html"
+            grep -o '<base href="[^"]*">' build/web/index.html || true
+            exit 1
+          fi
+          echo "OK: $EXPECTED"
+
+      # `enablement: true` turns GitHub Pages on for the repository via the API
+      # if it has never been enabled, so the very first deploy works without
+      # anyone visiting Settings first. If the token is not allowed to do that,
+      # this step fails with a clear message and the manual one-liner in the
+      # README applies instead.
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web
-          publish_branch: gh-pages
-          # The build output is generated, so replacing history keeps the
-          # branch from growing without bound.
-          force_orphan: true
+          enablement: true
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    name: Deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

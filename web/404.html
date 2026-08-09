@@ -3,17 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <title>Muhammed Shadil | Flutter Developer</title>
-  <!--
-    GitHub Pages serves this for any unknown path. The site is a single page,
-    so send the visitor to the root rather than showing GitHub's 404.
-    `replace` keeps the bad URL out of the back-button history.
-  -->
+  <meta name="robots" content="noindex">
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #08080B;
+      color: #A6A6B8;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    a { color: #22D3EE; }
+  </style>
   <script>
-    location.replace('/Shadil-Portfolio/');
+    // GitHub Pages serves this file for any unknown path. The portfolio is a
+    // single page, so send the visitor to its root rather than showing
+    // GitHub's own 404.
+    //
+    // The root is derived from the URL rather than hard-coded: on a project
+    // site (user.github.io/<repo>/...) it is the first path segment, and on a
+    // user site or custom domain it is "/". Renaming the repository therefore
+    // cannot break this redirect.
+    (function () {
+      var host = location.hostname;
+      var isProjectSite = /\.github\.io$/i.test(host);
+      var first = location.pathname.split('/')[1];
+      var root = (isProjectSite && first) ? '/' + first + '/' : '/';
+
+      // Never redirect to the page we are already on — that would loop.
+      if (location.pathname !== root) {
+        location.replace(root);
+      }
+    })();
   </script>
-  <meta http-equiv="refresh" content="0; url=/Shadil-Portfolio/">
 </head>
 <body>
-  <p>Redirecting to <a href="/Shadil-Portfolio/">muhammed-shadil.github.io/Shadil-Portfolio</a>…</p>
+  <p>Redirecting to the portfolio… <a href="/">Go there now</a>.</p>
 </body>
 </html>

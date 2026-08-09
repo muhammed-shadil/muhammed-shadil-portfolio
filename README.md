@@ -4,7 +4,7 @@ A Flutter Web portfolio for a Senior Flutter Developer. Dark, glass-and-glow
 visual language, scroll-driven reveals, an interactive project showcase with
 full case-study pages, and a custom cursor on desktop.
 
-**Live:** https://muhammed-shadil.github.io/Shadil-Portfolio/
+**Live:** https://muhammed-shadil.github.io/muhammed-shadil-portfolio/
 
 ---
 
@@ -15,15 +15,13 @@ flutter pub get
 flutter run -d chrome
 ```
 
-Then, for a production bundle:
+To publish your changes, one command does everything:
 
-```bash
-flutter build web --release --base-href "/Shadil-Portfolio/"
+```powershell
+.\tool\deploy.ps1 -Message "What changed"
 ```
 
-> **Windows note:** run the build from PowerShell, not Git Bash. Git Bash
-> rewrites the leading `/` in `--base-href` into a Windows path and the build
-> fails with `--base-href should start and end with /`.
+See [Deployment](#deployment) for what that runs and the one-time setup.
 
 Requires Flutter 3.41+ / Dart 3.11+.
 
@@ -176,38 +174,95 @@ is a stricter bar than the real layout has to clear.
 
 ## Deployment
 
-### Option A — deploy in place (recommended)
+The site is hosted from this repository on GitHub Pages at
+**https://muhammed-shadil.github.io/muhammed-shadil-portfolio/**
 
-[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) builds on every
-push to `main` and publishes `build/web` to the `gh-pages` branch.
+### One-time setup
 
-1. Push this repository to GitHub.
-2. **Settings → Pages → Source:** *Deploy from a branch* → `gh-pages` / `(root)`.
-3. Confirm `BASE_HREF` in the workflow matches your repository name.
+On github.com, in this repository:
 
-### Option B — the existing two-repo split
+**Settings → Pages → Build and deployment → Source: `GitHub Actions`**
 
-If you keep source in `flutter-portfolio` and serve from `Shadil-Portfolio`:
+That is the only manual step. There is no `gh-pages` branch to create and
+nothing to select afterwards.
 
-```bash
-flutter build web --release --base-href "/Shadil-Portfolio/"
+### Updating the live site
 
-# copy build/web/* into the Shadil-Portfolio repo root, then
-cd ../Shadil-Portfolio
-git add -A && git commit -m "Deploy" && git push
+```powershell
+.\tool\deploy.ps1                              # commit as "Update portfolio", deploy
+.\tool\deploy.ps1 -Message "Add case study"    # with a commit message
+.\tool\deploy.ps1 -Check                       # run the gates only, change nothing
+.\tool\deploy.ps1 -Redeploy                    # rebuild even with nothing to commit
+.\tool\deploy.ps1 -NoWait                      # push and exit, don't watch the run
+.\tool\deploy.ps1 -SkipTests                   # skip flutter test
 ```
 
-### Base href — the thing that breaks deployments
+Bash equivalent, same behaviour:
 
-GitHub Pages serves project sites from `/<repo-name>/`. If `--base-href` does
-not match, every asset resolves against the domain root and **the page loads
-blank with no error**. Two rules:
+```bash
+./tool/deploy.sh -m "Add case study"
+./tool/deploy.sh --check --redeploy --no-wait --skip-tests
+```
 
-- Repo site (`user.github.io/Shadil-Portfolio/`) → `--base-href "/Shadil-Portfolio/"`
-- User site or custom domain at the root → `--base-href "/"`
+The script:
 
-`web/404.html` redirects unknown paths back to the root, and `.nojekyll` stops
-GitHub from stripping files beginning with `_`.
+1. resolves the repo root, owner and repo name from `origin` — nothing is hard-coded
+2. warns if you are not on `main` (the workflow only builds `main`)
+3. `flutter pub get`
+4. `dart format .` — applied, not just checked, so the CI format gate cannot
+   fail on work you were about to push anyway
+5. `flutter analyze --fatal-infos`
+6. `flutter test`
+7. commits everything and pushes
+8. polls the GitHub API until the Actions run finishes, then prints the live URL
+   or the failing run's log link
+
+If there is nothing new to push it stops and tells you, rather than pretending
+to deploy. `-Redeploy` makes an empty commit when you want a rebuild anyway.
+
+### What runs in CI
+
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) repeats the same
+gates on a clean checkout, builds, and uploads the result as a Pages artifact.
+The build output never enters git history — that matters here because
+`build/web` is ~38 MB, most of it CanvasKit.
+
+### Base href — the thing that breaks GitHub Pages deployments
+
+Pages serves a project site from `/<repo-name>/`. If `--base-href` does not
+match, every asset resolves against the domain root and **the page loads blank
+with no error and nothing in the console to explain it**.
+
+The workflow derives it from the repository name:
+
+```yaml
+flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+```
+
+so renaming the repository cannot break the site, and a following step greps
+`build/web/index.html` to prove the value landed before anything is published.
+
+Building by hand instead? Then it must match:
+
+- project site (`user.github.io/<repo>/`) → `--base-href "/<repo>/"`
+- user site (`user.github.io`) or a custom domain at the root → `--base-href "/"`
+
+> **Windows note:** a manual build must be run from PowerShell, not Git Bash.
+> Git Bash rewrites the leading `/` into a Windows path and the build fails with
+> `--base-href should start and end with /`. `tool/deploy.ps1` avoids this
+> entirely by building in CI.
+
+`web/404.html` derives the site root from the URL at runtime, so unknown paths
+redirect correctly even if the repository is renamed.
+
+### The old URL
+
+The previous site at `muhammed-shadil.github.io/Shadil-Portfolio/` is a
+separate repository and keeps serving its old build until you change it. If
+anything already links there — a resume, LinkedIn, a job application — replace
+that repo's `index.html` with
+[`tool/old-site-redirect.html`](tool/old-site-redirect.html) so the old address
+forwards here instead of showing a stale portfolio.
 
 ---
 
