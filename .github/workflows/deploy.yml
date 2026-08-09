@@ -1,0 +1,69 @@
+name: Build and deploy to GitHub Pages
+
+# Publishes the built web app to the `gh-pages` branch of THIS repository.
+#
+# One-time setup:
+#   Settings → Pages → Source: "Deploy from a branch" → gh-pages / (root)
+#
+# If you keep the existing two-repo split (source here, build output in the
+# separate Shadil-Portfolio repo), see the "Deploying to a separate repo"
+# section of the README instead — this workflow deploys in place.
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+# Only one deploy at a time; a newer push supersedes an in-flight run.
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  # MUST match the repository name, with leading and trailing slashes.
+  # Set to "/" if you deploy to a user site or a custom domain at the root.
+  BASE_HREF: /Shadil-Portfolio/
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+
+      - name: Test
+        run: flutter test
+
+      - name: Build web
+        run: flutter build web --release --base-href "$BASE_HREF"
+
+      - name: Add GitHub Pages helper files
+        run: |
+          # Stops Jekyll from stripping files and folders that begin with "_".
+          touch build/web/.nojekyll
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+          publish_branch: gh-pages
+          # The build output is generated, so replacing history keeps the
+          # branch from growing without bound.
+          force_orphan: true
