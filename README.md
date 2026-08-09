@@ -326,3 +326,64 @@ To wire up real data, replace `ContributionData.sample` in
 `lib/sections/github/contribution_grid.dart` with a `List<List<int>>` of 0–4
 levels from the GitHub GraphQL `contributionsCollection` API. Nothing else
 changes.
+
+---
+
+## Three designs, one dataset
+
+The site ships three complete visual identities driven by the same
+[`portfolio_data.dart`](lib/data/portfolio_data.dart). Switch with one value in
+[`lib/core/config/portfolio_config.dart`](lib/core/config/portfolio_config.dart):
+
+```dart
+static const PortfolioDesign design = PortfolioDesign.design2;
+```
+
+| Design | Name | Language |
+|---|---|---|
+| `design1` | Aurora | Dark glass, violet→cyan, animated backdrop, bento project grid |
+| `design2` | Studio | Warm monochrome, oversized Manrope, coral accent, full-width project panels |
+| `design3` | Index | Light bone paper, Instrument Serif, editorial numbered index, inverted terminal band |
+
+Without editing source:
+
+```bash
+flutter run -d chrome --dart-define=DESIGN=design3
+flutter build web --release --dart-define=DESIGN=design3
+```
+
+In debug builds a floating switcher (bottom-left) flips between designs live.
+It is gated on `kDebugMode`, so the release bundle contains no trace of it —
+verified by grepping `main.dart.js` after a release build.
+
+### Adding design 4
+
+1. Add `design4` to the `PortfolioDesign` enum.
+2. Add a `DesignMeta` case in [`designs/design_registry.dart`](lib/designs/design_registry.dart).
+3. Build `designs/design_4/design_4_portfolio.dart` with its own theme.
+
+Nothing in `main.dart`, `app.dart`, the data layer or the switcher changes.
+
+### What is shared vs. owned
+
+**Shared:** `data/`, `models/`, `core/` (responsive, launcher, section
+controller, SVG parser), `animations/` (Reveal, OnVisible, HoverRegion,
+AnimatedCounter, TypingText).
+
+**Owned per design:** every widget, colour, type scale and layout. The designs
+deliberately do not share a card, a button or a theme — that is what makes them
+read as three different websites rather than three skins.
+
+### Project imagery
+
+`assets/images/` is empty — there are no screenshots in this repo, so each
+design composes a mockup from the Play Store launcher icon and the project's
+brand colour. To use real screenshots, drop them in `assets/images/` and list
+them on the project:
+
+```dart
+screenshots: ['assets/images/kathoram_1.png'],
+```
+
+Design 2 renders them in a device frame, Design 3 as an editorial plate. No
+other change is needed.

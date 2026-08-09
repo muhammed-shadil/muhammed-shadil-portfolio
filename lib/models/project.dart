@@ -70,6 +70,7 @@ class Project {
     this.category = 'Mobile app',
     this.iconUrl,
     this.monogram,
+    this.screenshots = const [],
     this.links = const [],
     this.detailBlocks = const [],
     this.architecture = const [],
@@ -101,6 +102,14 @@ class Project {
 
   /// One or two letters drawn in a gradient tile when there is no icon.
   final String? monogram;
+
+  /// Optional in-app screenshots, e.g. `assets/images/kathoram_1.png`.
+  ///
+  /// Empty for every project today — there are no screenshots in the repo, so
+  /// the designs render a composed mockup from [iconUrl]/[monogram] and
+  /// [accent] instead. Drop real images into `assets/images/` and list them
+  /// here and the mockups switch over automatically; nothing else changes.
+  final List<String> screenshots;
 
   final List<ProjectLink> links;
   final List<DetailBlock> detailBlocks;
