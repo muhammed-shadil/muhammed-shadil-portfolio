@@ -100,13 +100,18 @@ jobs:
           fi
           echo "OK: $EXPECTED"
 
-      # `enablement: true` turns GitHub Pages on for the repository via the API
-      # if it has never been enabled, so the very first deploy works without
-      # anyone visiting Settings first. If the token is not allowed to do that,
-      # this step fails with a clear message and the manual one-liner in the
-      # README applies instead.
+      # `enablement: true` asks GitHub to switch Pages on over the API so the
+      # first deploy needs no visit to Settings. That call is not permitted on
+      # every account, and when it is refused this step fails.
+      #
+      # continue-on-error: a refused *enablement* must not fail a build that is
+      # otherwise perfectly deployable. Nothing downstream consumes this step's
+      # outputs — if Pages is already on, the deploy proceeds normally; if it is
+      # genuinely off, `deploy-pages` below fails with an explicit message
+      # naming the setting to change.
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        continue-on-error: true
         with:
           enablement: true
 

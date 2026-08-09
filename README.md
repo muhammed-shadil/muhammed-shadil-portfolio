@@ -177,14 +177,20 @@ is a stricter bar than the real layout has to clear.
 The site is hosted from this repository on GitHub Pages at
 **https://muhammed-shadil.github.io/muhammed-shadil-portfolio/**
 
-### One-time setup
+### One-time setup — required once, takes five seconds
 
 On github.com, in this repository:
 
 **Settings → Pages → Build and deployment → Source: `GitHub Actions`**
 
-That is the only manual step. There is no `gh-pages` branch to create and
-nothing to select afterwards.
+This cannot be automated from here. The workflow does try
+(`configure-pages` runs with `enablement: true`), but GitHub refuses that API
+call on many accounts — it was refused on the first run of this repo, which is
+why the step is marked `continue-on-error` and the switch has to be flipped by
+hand once.
+
+After that one click, every deploy is fully automatic. There is no `gh-pages`
+branch to create and nothing to select afterwards.
 
 ### Updating the live site
 
@@ -226,6 +232,22 @@ to deploy. `-Redeploy` makes an empty commit when you want a rebuild anyway.
 gates on a clean checkout, builds, and uploads the result as a Pages artifact.
 The build output never enters git history — that matters here because
 `build/web` is ~38 MB, most of it CanvasKit.
+
+**The Flutter SDK is pinned** (`flutter-version: '3.41.6'`), not tracked to
+`channel: stable`. Newer SDKs ship new analyzer lints, and with
+`--fatal-infos` those turn an untouched repository red weeks after the last
+commit — which is exactly how the first run of this workflow failed. Pinned SDK
+plus the committed `pubspec.lock` means CI runs the same toolchain and the same
+lint set as your machine.
+
+To move to a newer Flutter, verify locally first, then bump the pin:
+
+```bash
+flutter upgrade
+flutter analyze --fatal-infos && flutter test   # fix anything new
+# then edit flutter-version in .github/workflows/deploy.yml to match
+flutter --version
+```
 
 ### Base href — the thing that breaks GitHub Pages deployments
 
