@@ -111,12 +111,22 @@ abstract final class PortfolioData {
       'https://www.instagram.com/shadi_k_muhammed/';
   static const String facebookUrl =
       'https://www.facebook.com/muhammed.shadil.7739';
-  static const String resumeUrl =
-      'https://drive.google.com/file/d/1jB_50LHw6y8C96wZRDvS5WIi2ewNpnZJ/view?usp=sharing';
 
-  /// Google Drive direct-download form of [resumeUrl].
+  /// Google Drive file ID of the resume PDF.
+  ///
+  /// The "view" and "download" links below are both derived from it, so
+  /// swapping in a new resume means editing this one line — and the two
+  /// buttons can never drift onto different files. To get it, open the Drive
+  /// share link and copy the segment between `/d/` and `/view`.
+  static const String resumeFileId = '1EEhtuGkdjk4iIkVzsqFyF-gI6xvhzbmJ';
+
+  static const String resumeUrl =
+      'https://drive.google.com/file/d/$resumeFileId/view?usp=sharing';
+
+  /// Direct-download form of [resumeUrl] — used by the "Download resume"
+  /// buttons so the file saves instead of opening the Drive preview.
   static const String resumeDownloadUrl =
-      'https://drive.google.com/uc?export=download&id=1jB_50LHw6y8C96wZRDvS5WIi2ewNpnZJ';
+      'https://drive.google.com/uc?export=download&id=$resumeFileId';
 
   static const String mailto = 'mailto:$email';
   static const String telUrl = 'tel:+917025510522';
