@@ -124,13 +124,14 @@
       pointer-events: none;
     }
 
-    /* The real logo, so the loading mark and the tab icon are one mark. */
+    /* The real logo, so the loading mark and the tab icon are one mark.
+       Neutral shadow: the artwork is grey on white, not a coloured tile. */
     .boot-mark {
-      width: 60px;
-      height: 60px;
+      width: 62px;
+      height: 62px;
       border-radius: 14px;
       display: block;
-      box-shadow: 0 10px 40px -8px rgba(32, 57, 243, 0.6);
+      box-shadow: 0 10px 34px -10px rgba(0, 0, 0, 0.8);
     }
 
     .boot-bar {
@@ -146,7 +147,7 @@
       width: 40%;
       height: 100%;
       border-radius: 2px;
-      background: #2039F3;
+      background: linear-gradient(90deg, #8A8A8A, #FFFFFF);
       animation: boot-slide 1.15s ease-in-out infinite;
     }
 
