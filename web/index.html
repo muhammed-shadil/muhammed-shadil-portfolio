@@ -124,20 +124,12 @@
       pointer-events: none;
     }
 
-    /* Matches the favicon so the tab icon and the loading mark are the same
-       thing, rather than a gradient "MS" resolving into a blue "S". */
+    /* The real logo, so the loading mark and the tab icon are one mark. */
     .boot-mark {
-      width: 56px;
-      height: 56px;
-      border-radius: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 30px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      color: #FFFFFF;
-      background: #2039F3;
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      display: block;
       box-shadow: 0 10px 40px -8px rgba(32, 57, 243, 0.6);
     }
 
@@ -196,7 +188,7 @@
   </noscript>
 
   <div id="boot">
-    <div class="boot-mark">S</div>
+    <img class="boot-mark" src="icons/Icon-192.png" alt="Muhammed Shadil">
     <div class="boot-bar"><span></span></div>
     <div class="boot-label">Loading portfolio</div>
   </div>
